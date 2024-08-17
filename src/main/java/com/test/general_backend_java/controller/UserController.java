@@ -1,17 +1,13 @@
 package com.test.general_backend_java.controller;
 
-import com.test.general_backend_java.dto.ErrorResponseDto;
-import com.test.general_backend_java.dto.UserDto;
-import com.test.general_backend_java.dto.UserRequestDto;
+import com.test.general_backend_java.dto.*;
 import com.test.general_backend_java.model.User;
 import com.test.general_backend_java.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -47,5 +43,19 @@ public class UserController {
         }
         userService.registerUser(userDto);
         return ResponseEntity.status(201).body("User registered successfully.");
+    }
+
+    @GetMapping("/exists")
+    public ResponseEntity<ExistenceResponseDto> checkUsername(@RequestParam String username) {
+        boolean exists = userService.findByEmail(username).isPresent();
+        ExistenceResponseDto response = new ExistenceResponseDto();
+        response.setExists(exists);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthLoginResponse> login(@RequestBody @Valid UserRequestDto userRequestDto){
+        return new ResponseEntity<>(userService.loginUser(userRequestDto), HttpStatus.OK);
     }
 }
